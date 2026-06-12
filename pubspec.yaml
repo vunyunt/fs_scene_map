@@ -1,0 +1,25 @@
+name: fs_scene_map
+description: A shared Dart/Flame package for managing scene maps and spatial chunking.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.12.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flame: ^1.34.0
+  protobuf: ^6.0.0
+  fixnum: ^1.1.1
+  path: ^1.9.1
+  meta: ^1.17.0
+  fs_game_data:
+    path: ../fs_game_data
+  protobuf_serializable_components:
+    path: ../protobuf_serializable_components
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  test: any

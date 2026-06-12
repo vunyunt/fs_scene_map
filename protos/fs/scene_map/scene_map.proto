@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package fs.scene_map;
+
+import "google/protobuf/any.proto";
+
+message IntVectorProto {
+  repeated int32 values = 1;
+}
+
+message FloatVectorProto {
+  repeated float values = 1;
+}
+
+message PositionedComponentProto {
+  int64 id = 1;
+  IntVectorProto position = 2;
+  FloatVectorProto scale = 3;
+  float angle = 4; // Angle in radians
+  repeated google.protobuf.Any children = 5;
+  IntVectorProto size = 6;
+}
+
+message SpatialChunkProto {
+  repeated PositionedComponentProto components = 1;
+}
+
+message SceneMapProto {
+  IntVectorProto world_bounds = 1; // Assuming it's [minX, minY, maxX, maxY]
+  repeated google.protobuf.Any children = 2;
+  int32 chunk_size = 3;        // Optional: if 0, single file mode.
+  string chunks_directory = 4; // Path relative to game data root.
+}
+
+message WorldManifestProto {
+  IntVectorProto world_bounds = 1;
+  int32 chunk_size = 2;
+  repeated google.protobuf.Any global_children = 3;
+  IntVectorProto initial_player_position = 4;
+  bool should_spawn_player = 5;
+}

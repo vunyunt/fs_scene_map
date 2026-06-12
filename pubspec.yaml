@@ -15,6 +15,16 @@ dependencies:
   path: ^1.9.1
   meta: ^1.17.0
   fs_game_data:
+    git:
+      url: https://github.com/vunyunt/fs_game_data.git
+      ref: main
+  protobuf_serializable_components:
+    git:
+      url: https://github.com/vunyunt/protobuf_serializable_components.git
+      ref: main
+
+dependency_overrides:
+  fs_game_data:
     path: ../fs_game_data
   protobuf_serializable_components:
     path: ../protobuf_serializable_components

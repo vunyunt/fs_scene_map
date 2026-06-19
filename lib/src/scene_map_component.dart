@@ -70,16 +70,16 @@ abstract class BaseSceneMapComponent<
     final bounds = worldBoundsValues;
     if (bounds != null && bounds.length >= 4) {
       size = Vector2(
-        (bounds[2] - bounds[0]).toDouble(),
-        (bounds[3] - bounds[1]).toDouble(),
+        (bounds[2] - bounds[0]) / 1000.0,
+        (bounds[3] - bounds[1]) / 1000.0,
       );
     }
 
     if (chunkSize > 0 && _spatialChunkController == null) {
       final manager = SpatialChunkManager<I, P>(
         basePath: chunksDirectory,
-        gridWidth: chunkSize,
-        gridHeight: chunkSize,
+        gridWidth: chunkSize ~/ 1000,
+        gridHeight: chunkSize ~/ 1000,
         loader: (criteria) async {
           final fileName = _spatialChunkController!.chunkManager.getFileName(criteria);
           return await loadSpatialChunk(fileName);
@@ -167,7 +167,7 @@ class SceneMapComponent extends BaseSceneMapComponent<SceneMapProto, PositionedC
           createController: (manager) => SpatialChunkController<PositionedComponentProto, SpatialChunkProto>(
             chunkManager: manager,
             registry: registry,
-            loadBuffer: data.chunkSize.toDouble(),
+            loadBuffer: data.chunkSize.toDouble() / 1000.0,
             checkEditorMode: checkEditorMode,
             chunkBuilder: (proto, criteria) => GenericSpatialChunkComponent(
               proto,
@@ -196,10 +196,10 @@ class SceneMapComponent extends BaseSceneMapComponent<SceneMapProto, PositionedC
   dynamic getPositionedItemId(dynamic proto) => proto is PositionedComponentProto ? proto.id : null;
 
   @override
-  (double, double) getPositionOfItem(PositionedComponentProto item) => (
-        item.position.xOrZero.toDouble(),
-        item.position.yOrZero.toDouble(),
-      );
+  (double, double) getPositionOfItem(PositionedComponentProto item) {
+    final pos = item.position.toVector2();
+    return (pos.x, pos.y);
+  }
 
   @override
   dynamic getIdOfItem(PositionedComponentProto item) => item.id;

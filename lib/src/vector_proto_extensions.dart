@@ -19,29 +19,33 @@ extension IntVectorProtoExtensions on IntVectorProto {
 
   void updateFromVector2(Vector2 vector) {
     if (values.isEmpty) {
-      values.addAll([vector.x.round(), vector.y.round()]);
+      values.addAll([(vector.x * 1000.0).round(), (vector.y * 1000.0).round()]);
     } else {
-      values[0] = vector.x.round();
+      values[0] = (vector.x * 1000.0).round();
       if (values.length < 2) {
-        values.add(vector.y.round());
+        values.add((vector.y * 1000.0).round());
       } else {
-        values[1] = vector.y.round();
+        values[1] = (vector.y * 1000.0).round();
       }
     }
   }
 
   void mergeFromVector2(Vector2 vector) {
+    final savedZ = values.length > 2 ? values[2] : null;
     values.clear();
-    values.add(vector.x.toInt());
-    values.add(vector.y.toInt());
+    values.add((vector.x * 1000.0).toInt());
+    values.add((vector.y * 1000.0).toInt());
+    if (savedZ != null) {
+      values.add(savedZ);
+    }
   }
 
-  Vector2 toVector2() => Vector2(xOrZero.toDouble(), yOrZero.toDouble());
+  Vector2 toVector2() => Vector2(xOrZero / 1000.0, yOrZero / 1000.0);
 }
 
 extension Vector2Extensions on Vector2 {
   IntVectorProto toIntVector({int? z}) {
-    final list = [x.round(), y.round()];
+    final list = [(x * 1000.0).round(), (y * 1000.0).round()];
     if (z != null) {
       list.add(z);
     }

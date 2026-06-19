@@ -58,7 +58,6 @@ class SpatialChunkManager<I extends GeneratedMessage, P extends GeneratedMessage
   @override
   Future<void> deleteItem((int, int) criteria, dynamic id) async {
     final proto = await getOrLoadChunk(criteria);
-    final beforeDirty = dirtyChunks.contains(criteria);
     removeItem(proto, id);
     // Since removeItem is side-effecting on the proto, we mark it dirty.
     markDirty(criteria);

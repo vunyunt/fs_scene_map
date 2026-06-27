@@ -195,6 +195,24 @@ class SpatialChunkController<I extends GeneratedMessage, P extends GeneratedMess
     }
   }
 
+  /// Walks up the Flame tree from [component] to the nearest ancestor that
+  /// implements [HasChunkCriteria] and returns its chunk criteria, or null if
+  /// none is found.
+  ///
+  /// Nested components store their data inside an ancestor chunk's proto, so
+  /// the ancestor's chunk is the one that must be marked dirty when they are
+  /// edited.
+  (int, int)? _rootChunkCriteria(Component component) {
+    var ancestor = component.parent;
+    while (ancestor != null) {
+      if (ancestor is HasChunkCriteria) {
+        return (ancestor as HasChunkCriteria).criteria;
+      }
+      ancestor = ancestor.parent;
+    }
+    return null;
+  }
+
   /// Checks if a component should be moved to a different chunk based on its position.
   /// If it needs moving, it will be re-parented in the Flame tree and the data-level
   /// move will be handled by the [chunkManager].
@@ -208,10 +226,17 @@ class SpatialChunkController<I extends GeneratedMessage, P extends GeneratedMess
         ? (currentChunk as HasChunkCriteria).criteria
         : null;
 
-    // Skip nested components (they should stay with their parent, not be root-level in chunks)
-    // We check if parent is a chunk by verifying if it is one of the loaded chunks.
+    // Nested components stay with their parent (they are not root-level in
+    // chunks). Detect this by checking whether the parent is the controller's
+    // own parent or one of the loaded chunks.
     final isParentAChunk = currentChunk != null && _loadedChunks.containsValue(currentChunk);
     if (currentChunk != parent && !isParentAChunk) {
+      // The edited data lives inside the nearest ancestor chunk's proto, so
+      // mark that chunk dirty to ensure the change persists on save.
+      final rootCriteria = _rootChunkCriteria(component);
+      if (rootCriteria != null) {
+        chunkManager.markDirty(rootCriteria);
+      }
       return;
     }
 
@@ -254,10 +279,15 @@ class SpatialChunkController<I extends GeneratedMessage, P extends GeneratedMess
 
   void markDirty(Component component) {
     if (component is! PositionComponent) return;
-    final criteria = chunkManager.getCriteriaFromPosition(
-      component.position.x,
-      component.position.y,
-    );
+    // For nested components, [position] is local to their parent, so computing
+    // the chunk from position would mark the wrong chunk. Prefer the nearest
+    // ancestor chunk's criteria when available; fall back to position-based
+    // for root / non-chunked components.
+    final criteria = _rootChunkCriteria(component) ??
+        chunkManager.getCriteriaFromPosition(
+          component.position.x,
+          component.position.y,
+        );
     chunkManager.markDirty(criteria);
   }
 }

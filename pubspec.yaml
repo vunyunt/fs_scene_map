@@ -33,3 +33,4 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   test: any
+  flame_test: ^1.19.0
